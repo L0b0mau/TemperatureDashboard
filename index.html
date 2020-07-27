@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Homeautomation</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="description" content="My Homeautomation Dashboard">
+
+          <script src="../libs/jquery-3.4.1.min.js"></script>
+    <script src="../libs/jquery.csv.min.js"></script>
+    <script src="../libs/Chart.min.js"></script>
+    <style src="../libs/Chart.min.css"></style>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+  <style>
+    body {
+
+        background: ghostwhite;
+        margin-left: 15px;
+          }
+    .text{
+              color: #112D32;
+
+          }
+              
+
+
+
+
+  #foot{
+     margin-left: 50px;
+    color: grey;
+    }
+    footer{
+         margin-top: 100px;
+        
+    }
+
+              
+      </style>
+      
+  </head>
+  <body>
+      
+      <div >
+          <h2 class="display-4 text-center" style="padding-top: 60px"> Temperature and Humidity</h2>
+
+          <p id="latest" class="text-center h5" style="padding-top: 20px">There was a problem or there is no data yet</p>
+
+              <div id="chartdiv" >
+                    <canvas id="myChart" class="col-8 align-self-center" style="padding-top: 20px; padding-left: 50px"></canvas>
+            </div>
+            
+                </div>
+
+          
+      <script>
+        var myResult   = [];
+        var myTemp   = [];
+        var myHum   = [];
+        var mydate   = [];
+
+ 
+     
+
+        $(document).ready(function() {
+            $.ajax({
+                type: "GET",
+                url: "logs.csv",
+                dataType: "text",
+                success: function(data) {processData(data);}
+             });
+        });
+
+        function processData(allText) {
+            var options={"separator" : ";"};
+            myResult = $.csv.toArrays(allText, options);
+            console.log("Array: " + myResult.length + " x " + myResult[0].length);
+            console.log("Array: " + myResult);
+            console.log(myResult[0][2])
+            var counter = 0;
+            for(i=0; i<myResult.length ;i+=1){
+                
+				if(myResult[i][1]=="temperature"){
+				
+					 mydate[counter]=myResult[i][0];/*tempdata*/
+					 myTemp[counter]=myResult[i][2];/*tempdata*/
+					 myHum[counter]=myResult[i][3];/*humidity*/
+                    
+                    if(i==(myResult.length-1)){
+                        document.getElementById('latest').textContent = "Current state (" + mydate[counter] +"): "+ myTemp[counter] + "°C - " + myHum[counter] + "% LF";
+                        /*Here you can also embedd some logic to change the background color depending on the current temperature ;)*/
+                    }
+                    
+					 counter=counter+1;
+				}
+                
+            }
+            
+            simplechart();
+        }
+
+          
+          function simplechart(){
+              
+            var ctx = document.getElementById('myChart').getContext('2d');
+
+              
+              var myLineChart = new Chart(ctx, {
+                    type: 'line',
+                    // The data for our dataset
+                    data: {
+                        labels: mydate,
+                        datasets: [{
+                            label: 'Temperature [°C]',
+/*
+                            backgroundColor: 'rgb(255, 99, 132)', //uncomment if you want the area under the line to be filled
+*/                            pointRadius: 1,
+					           pointHoverRadius: 10,
+
+                            borderColor: 'rgb(255, 99, 132)',
+                            data: myTemp
+                        }, {
+                            label: 'Humidity [%]',
+/*
+                            backgroundColor: 'rgb(0, 99, 132)',  //uncomment if you want the area under the line to be filled
+*/
+                            borderColor: 'rgb(0, 99, 132)',
+                            pointRadius: 1,
+                            pointHoverRadius: 10,
+                            data: myHum
+                        }]
+                    },
+
+                    // Configuration options go here
+                    options: {}
+                });
+
+          }
+          
+
+          
+
+
+
+      
+      </script>
+    
+  
+  </body>
+   
+
+</html>
